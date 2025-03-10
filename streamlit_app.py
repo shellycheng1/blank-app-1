@@ -280,41 +280,6 @@ if app_mode == "04 Predictions":
         st.write(f"4) **R-Squared Score:** {r2_score(y_test, y_pred):.2f}")
 
 
-        # Visualizing salary distribution by gender
-        st.subheader("📊 Base Pay Distribution by Gender")
-        plt.figure(figsize=(8, 5))
-        sns.boxplot(x=df['Gender'], y=df['BasePay'], palette='coolwarm')
-        plt.xticks(ticks=[0, 1], labels=['Female', 'Male'])
-        plt.xlabel('Gender')
-        plt.ylabel('Base Pay')
-        plt.title('Base Pay Distribution by Gender')
-        st.pyplot(plt)
-
-
-        # Visualize predictions vs actual values (line plot)
-        st.subheader("📈 Predictions vs Actual Values")
-        plt.figure(figsize=(8, 5))
-        plt.plot(y_test.values, label="Actual", color='blue')
-        plt.plot(y_pred, label="Predicted", color='red')
-        plt.title("Actual vs Predicted Base Pay")
-        plt.xlabel("Sample Index")
-        plt.ylabel("Base Pay")
-        plt.legend()
-        st.pyplot(plt)
-
-
-        # Visualize residuals (differences between actual and predicted values)
-        st.subheader("📉 Residuals Plot")
-        residuals = y_test - y_pred
-        plt.figure(figsize=(8, 5))
-        plt.scatter(y_test, residuals, color='green')
-        plt.hlines(y=0, xmin=y_test.min(), xmax=y_test.max(), colors='red', linestyles='dashed')
-        plt.title("Residuals Plot")
-        plt.xlabel("Actual Base Pay")
-        plt.ylabel("Residuals (Actual - Predicted)")
-        st.pyplot(plt)
-
-
         # Visualization options for the user to select
         st.markdown("<h3 style='font-size:22px;'>Select Visualization Type</h3>", unsafe_allow_html=True)
         visualization_choice = st.selectbox(
@@ -414,4 +379,5 @@ if app_mode == "05 Conclusions":
         """
     )
 
-
+    st.subheader("Group Members")
+    st.write("Shelly Cheng, Kendra Contreras, Andrea Pelaez, Falisha Khan")
