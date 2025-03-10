@@ -4,6 +4,10 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.express as px
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, explained_variance_score
 
 df = pd.read_csv("Glassdoor Gender Pay Gap.csv")
 
@@ -177,8 +181,8 @@ elif app_mode == "03 Data Visualization":
 
 
 # Check if gender_total is empty or doesn't have the required columns
-if not gender_total.empty and 'Education' in gender_total.columns and 'Number of cases' in gender_total.columns:
-    st.markdown(f"##### **Average Base Pay by Education for {select}**") # Display Job Title in the title
+    if not gender_total.empty and 'Education' in gender_total.columns and 'Number of cases' in gender_total.columns:
+        st.markdown(f"##### **Average Base Pay by Education for {select}**") # Display Job Title in the title
 
 
 
@@ -187,28 +191,23 @@ if not gender_total.empty and 'Education' in gender_total.columns and 'Number of
 
 
 
-if not st.checkbox('Hide Graph', False, key="hide_graph_checkbox"):
-    # Calculate the average base pay grouped by 'Education' and 'Gender'
-    gender_avg_basepay = gender_data.groupby(['Education', 'Gender'])['BasePay'].mean().reset_index()
+    if not st.checkbox('Hide Graph', False, key="hide_graph_checkbox"):
+        # Calculate the average base pay grouped by 'Education' and 'Gender'
+        gender_avg_basepay = gender_data.groupby(['Education', 'Gender'])['BasePay'].mean().reset_index()
 
 
-    # Create the bar plot with the average base pay
-    state_total_graph = px.bar(gender_avg_basepay,
-     x='Education',
-    y='BasePay',
-    color='Gender', # Divides the bars by Gender
-    barmode='group', # Groups the bars side-by-side
-    labels={'BasePay': f'Average Base Pay for {select}'},
-    color_discrete_sequence=[ "#e8334b", "#037ffc"], # Custom color palette
-    category_orders={'Education': ['High School', 'College', 'Masters', 'PhD']}) # Order the Education categories
-    st.plotly_chart(state_total_graph)
-else:
-    st.error("The gender_total DataFrame is empty or does not have the required columns.")
-
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, explained_variance_score
+        # Create the bar plot with the average base pay
+        state_total_graph = px.bar(gender_avg_basepay,
+        x='Education',
+        y='BasePay',
+        color='Gender', # Divides the bars by Gender
+        barmode='group', # Groups the bars side-by-side
+        labels={'BasePay': f'Average Base Pay for {select}'},
+        color_discrete_sequence=[ "#e8334b", "#037ffc"], # Custom color palette
+        category_orders={'Education': ['High School', 'College', 'Masters', 'PhD']}) # Order the Education categories
+        st.plotly_chart(state_total_graph)
+    else:
+        st.error("The gender_total DataFrame is empty or does not have the required columns.")
 
 # Predictions
 if app_mode == "04 Predictions":
