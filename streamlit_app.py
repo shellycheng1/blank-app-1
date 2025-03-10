@@ -83,37 +83,50 @@ elif app_mode == "03 Data Visualization":
     gender_data = df[df['JobTitle'] == select]  # Filter the data based on the selected job title
 
 
-    # Display the selected Job Title in the markdown header for all charts
-    st.title(f"**Data Visualization for {select}**")
+    st.markdown("## Data Visualization")
 
 
-    # Bar Chart
+    # Salary Distribution
+    st.markdown('##### Salary Distribution by Job Title')
+    fig, ax = plt.subplots(figsize=(6, 4))
+    sns.barplot(data=df, y='BasePay', x= 'JobTitle', palette=[ "#e8334b", "#037ffc"], hue='Gender')
+    plt.tick_params(axis='both', which='major', labelsize=3)
+    plt.xlabel('Job Title', fontsize=10);
+    plt.ylabel('Average Base Pay', fontsize=10);
+    plt.legend(title='Gender', fontsize=8)
+    st.pyplot(fig)
+    st.markdown("> While women's base pay tends to be higher than men's in Manager, Data Scientist, and Graphic Designer positions, men's Base Pay for Software Engineer and Marketing Associate positions far exceeds women's.")
+
+
+    # Scatterplot Select
     list_of_var = df.columns
-    st.markdown("##### Bar Chart")
+    st.markdown(f"##### Scatterplots for {select}")
+    st.markdown(">Show the distribution of individuals in the field across different variables")
     user_selection = st.selectbox("Select a variable", list_of_var)
 
 
-    st.bar_chart(gender_data[user_selection])  # Apply job title filter to this chart
+    st.scatter_chart(gender_data[user_selection])  # Apply job title filter to this chart
 
 
     # Bar Plot (BasePay vs Gender)
-    st.markdown("##### Bar Plot")
+    st.markdown(f"##### Average Female and Male Base Pay for {select}")
+    st.markdown(">Show the difference between average base pay for men and women in the field")
     user_selections = st.multiselect("Select a variable", list_of_var, ["BasePay", "Gender"])
     fig, ax = plt.subplots(figsize=(6, 4))
-    sns.barplot(y=user_selections[0], x=user_selections[1], data=gender_data, palette='coolwarm_r')  # Apply job title filter
+    sns.barplot(y=user_selections[0], x=user_selections[1], data=gender_data, palette=[ "#e8334b", "#037ffc"])  # Apply job title filter
     st.pyplot(fig)
 
 
     # Scatterplot (BasePay vs Age)
-    st.markdown("##### Scatterplot")
+    st.markdown(f"##### Scatterplots for {select} by Gender")
+    st.markdown(">Show the relation between two different variables, color-coded by gender")
     user_selections1 = st.multiselect("Select a variable", list_of_var, ["BasePay", "Age"])
     fig, ax = plt.subplots(figsize=(10, 6))
-    sns.scatterplot(y=user_selections1[0], x=user_selections1[1], data=gender_data, hue='Gender', palette='coolwarm_r')  # Apply job title filter
+    sns.scatterplot(y=user_selections1[0], x=user_selections1[1], data=gender_data, hue='Gender', palette=[ "#e8334b", "#037ffc"])  # Apply job title filter
     st.pyplot(fig)
 
 
-    st.sidebar.checkbox("Show Analysis by Education Level", True, key="education_checkbox")
-    select_status = st.sidebar.radio("Education", ('High School', 'College', 'Masters', 'PhD'))
+    select_status = st.sidebar.radio("Education Level", ('High School', 'College', 'Masters', 'PhD'))
 
 
     # Function to count the cases by Education category
@@ -121,9 +134,6 @@ elif app_mode == "03 Data Visualization":
         # Ensure the Education column is of categorical type with a defined order
         ordered_categories = ['High School', 'College', 'Masters', 'PhD']
         dataset[education_column] = pd.Categorical(dataset[education_column], categories=ordered_categories, ordered=True)
-
-
-        st.write("Unique values in the 'Education' column:", dataset[education_column].unique())
 
 
         # Count the occurrences of each education level
@@ -142,33 +152,58 @@ elif app_mode == "03 Data Visualization":
         return total_dataframe
 
 
+
+
+
+
     if st.sidebar.checkbox("Show Education Level Analysis", True, key="analysis_checkbox"):
         gender_total = get_total_dataframe(gender_data)
 
 
-        # Display the gender_total DataFrame for debugging
-        st.write("Gender total DataFrame:", gender_total)
 
 
-        # Check if gender_total is empty or doesn't have the required columns
-        if not gender_total.empty and 'Education' in gender_total.columns and 'Number of cases' in gender_total.columns:
-            st.markdown(f"### **Base Pay by Education for {select}**")  # Display Job Title in the title
-       
 
 
-            if not st.checkbox('Hide Graph', False, key="hide_graph_checkbox"):
-                # Group bars by gender
-                state_total_graph = px.bar(gender_data,
-                                           x='Education',
-                                           y='BasePay',
-                                           color='Gender',  # Divides the bars by Gender
-                                           barmode='group',  # Groups the bars side-by-side
-                                           labels={'BasePay': f'Base Pay in {select}'},
-                                           color_discrete_sequence=[ "#e8334b", "#037ffc"],  # Custom color palette
-                                           category_orders={'Education': ['High School', 'College', 'Masters', 'PhD']})  # Order the Education categories
-                st.plotly_chart(state_total_graph)
-        else:
-            st.error("The gender_total DataFrame is empty or does not have the required columns.")
+
+
+    # Display the gender_total DataFrame for debugging
+    st.write(f"##### Education Level Distribution for {select}:", gender_total)
+
+
+
+
+
+
+
+
+# Check if gender_total is empty or doesn't have the required columns
+if not gender_total.empty and 'Education' in gender_total.columns and 'Number of cases' in gender_total.columns:
+    st.markdown(f"##### **Average Base Pay by Education for {select}**") # Display Job Title in the title
+
+
+
+
+
+
+
+
+if not st.checkbox('Hide Graph', False, key="hide_graph_checkbox"):
+    # Calculate the average base pay grouped by 'Education' and 'Gender'
+    gender_avg_basepay = gender_data.groupby(['Education', 'Gender'])['BasePay'].mean().reset_index()
+
+
+    # Create the bar plot with the average base pay
+    state_total_graph = px.bar(gender_avg_basepay,
+     x='Education',
+    y='BasePay',
+    color='Gender', # Divides the bars by Gender
+    barmode='group', # Groups the bars side-by-side
+    labels={'BasePay': f'Average Base Pay for {select}'},
+    color_discrete_sequence=[ "#e8334b", "#037ffc"], # Custom color palette
+    category_orders={'Education': ['High School', 'College', 'Masters', 'PhD']}) # Order the Education categories
+    st.plotly_chart(state_total_graph)
+else:
+    st.error("The gender_total DataFrame is empty or does not have the required columns.")
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
